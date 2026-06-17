@@ -1,0 +1,1145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fridge-to-Plate — Stop Food Waste, Start Cooking</title>
+  <!-- SEO Meta Tags -->
+  <meta name="description" content="Turn your leftovers and fridge ingredients into delicious meals using AI. Save money and reduce food waste.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍳</text></svg>">
+  
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Markdown parser CDN for flexible and beautiful text parsing -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+  <style>
+    :root {
+      --bg-cream: #FAF9F6;
+      --primary-green: #2E7D32;
+      --accent-green: #4CAF50;
+      --light-green: #E8F5E9;
+      --warm-orange: #FF9800;
+      --dark-orange: #F57C00;
+      --light-orange: #FFF3E0;
+      --text-dark: #1E293B;
+      --text-muted: #64748B;
+      --white: #FFFFFF;
+      --shadow-sm: 0 2px 4px rgba(46, 125, 50, 0.05);
+      --shadow-md: 0 8px 16px rgba(46, 125, 50, 0.08);
+      --shadow-lg: 0 16px 32px rgba(46, 125, 50, 0.12);
+      --radius-sm: 8px;
+      --radius-md: 16px;
+      --radius-lg: 24px;
+      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background-color: var(--bg-cream);
+      color: var(--text-dark);
+      line-height: 1.6;
+      padding-bottom: 60px;
+      overflow-x: hidden;
+    }
+
+    header {
+      background-color: var(--white);
+      box-shadow: var(--shadow-sm);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      border-bottom: 1px solid rgba(46, 125, 50, 0.1);
+    }
+
+    .header-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--primary-green);
+      text-decoration: none;
+    }
+
+    .logo span {
+      color: var(--warm-orange);
+    }
+
+    .logo i {
+      font-size: 1.8rem;
+    }
+
+    main {
+      max-width: 1200px;
+      margin: 40px auto;
+      padding: 0 24px;
+    }
+
+    .hero {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+
+    .hero h1 {
+      font-size: 2.8rem;
+      font-weight: 800;
+      color: var(--primary-green);
+      margin-bottom: 16px;
+      letter-spacing: -0.5px;
+      line-height: 1.2;
+    }
+
+    .hero p {
+      font-size: 1.2rem;
+      color: var(--text-muted);
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .interactive-card {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      padding: 32px;
+      box-shadow: var(--shadow-md);
+      border: 1px solid rgba(46, 125, 50, 0.05);
+      margin-bottom: 40px;
+      transition: var(--transition);
+    }
+
+    .interactive-card:hover {
+      box-shadow: var(--shadow-lg);
+    }
+
+    .upload-zone {
+      border: 3px dashed var(--accent-green);
+      border-radius: var(--radius-md);
+      padding: 40px 20px;
+      text-align: center;
+      cursor: pointer;
+      background-color: var(--light-green);
+      transition: var(--transition);
+      position: relative;
+    }
+
+    .upload-zone:hover, .upload-zone.dragover {
+      background-color: #E2F0D9;
+      border-color: var(--primary-green);
+    }
+
+    .upload-zone i {
+      font-size: 3rem;
+      color: var(--primary-green);
+      margin-bottom: 16px;
+    }
+
+    .upload-zone p {
+      font-size: 1.1rem;
+      font-weight: 500;
+      color: var(--text-dark);
+      margin-bottom: 8px;
+    }
+
+    .upload-zone span {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    #image-input {
+      display: none;
+    }
+
+    .preview-container {
+      margin-top: 24px;
+      display: none;
+      justify-content: center;
+      position: relative;
+    }
+
+    .preview-wrapper {
+      position: relative;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      box-shadow: var(--shadow-md);
+      max-width: 300px;
+      max-height: 300px;
+    }
+
+    .preview-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .remove-image-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: rgba(0, 0, 0, 0.6);
+      color: var(--white);
+      border: none;
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: var(--transition);
+    }
+
+    .remove-image-btn:hover {
+      background: rgba(239, 68, 68, 0.9);
+      transform: scale(1.1);
+    }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      text-align: center;
+      margin: 24px 0;
+      color: var(--text-muted);
+      font-weight: 500;
+      font-size: 0.9rem;
+    }
+
+    .divider::before, .divider::after {
+      content: '';
+      flex: 1;
+      border-bottom: 1px solid rgba(46, 125, 50, 0.15);
+    }
+
+    .divider:not(:empty)::before {
+      margin-right: .75em;
+    }
+
+    .divider:not(:empty)::after {
+      margin-left: .75em;
+    }
+
+    .btn-secondary {
+      background-color: var(--white);
+      border: 2px solid var(--warm-orange);
+      color: var(--dark-orange);
+      padding: 12px 24px;
+      border-radius: var(--radius-sm);
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: var(--transition);
+      margin: 0 auto;
+    }
+
+    .btn-secondary:hover {
+      background-color: var(--light-orange);
+      transform: translateY(-2px);
+    }
+
+    .dropdown-container {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s ease-out;
+      margin-top: 16px;
+    }
+
+    .dropdown-container.show {
+      max-height: 500px;
+    }
+
+    .ingredients-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 12px;
+      background: var(--bg-cream);
+      padding: 20px;
+      border-radius: var(--radius-md);
+      border: 1px solid rgba(255, 152, 0, 0.15);
+    }
+
+    .checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.95rem;
+      cursor: pointer;
+      user-select: none;
+      padding: 8px;
+      background: var(--white);
+      border-radius: var(--radius-sm);
+      border: 1px solid rgba(0, 0, 0, 0.05);
+      transition: var(--transition);
+    }
+
+    .checkbox-label:hover {
+      border-color: var(--warm-orange);
+      background-color: var(--light-orange);
+    }
+
+    .checkbox-label input {
+      accent-color: var(--dark-orange);
+      width: 18px;
+      height: 18px;
+    }
+
+    .action-container {
+      margin-top: 32px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .btn-primary {
+      background-color: var(--primary-green);
+      color: var(--white);
+      border: none;
+      padding: 16px 48px;
+      border-radius: var(--radius-md);
+      font-size: 1.15rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(46, 125, 50, 0.2);
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      transition: var(--transition);
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background-color: #1B5E20;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(46, 125, 50, 0.3);
+    }
+
+    .btn-primary:disabled {
+      background-color: var(--text-muted);
+      cursor: not-allowed;
+      box-shadow: none;
+      opacity: 0.6;
+    }
+
+    .loading-container {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      margin: 40px 0;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .spinner {
+      border: 6px solid rgba(46, 125, 50, 0.1);
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      border-left-color: var(--primary-green);
+      animation: spin 1s linear infinite;
+      margin-bottom: 16px;
+    }
+
+    .loading-text {
+      font-size: 1.2rem;
+      font-weight: 500;
+      color: var(--primary-green);
+    }
+
+    .error-container {
+      display: none;
+      background-color: #FFEBEE;
+      border: 1px solid #FFCDD2;
+      color: #C62828;
+      padding: 16px;
+      border-radius: var(--radius-md);
+      margin-bottom: 30px;
+      text-align: center;
+      font-weight: 500;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .results-container {
+      display: none;
+      animation: fadeIn 0.6s ease;
+    }
+
+    .results-header {
+      margin-bottom: 24px;
+    }
+
+    .results-header h2 {
+      font-size: 1.8rem;
+      color: var(--primary-green);
+      margin-bottom: 12px;
+    }
+
+    .ingredient-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 30px;
+    }
+
+    .chip {
+      background-color: var(--light-green);
+      color: var(--primary-green);
+      padding: 6px 16px;
+      border-radius: 50px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      border: 1px solid rgba(46, 125, 50, 0.15);
+    }
+
+    .recipes-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 30px;
+    }
+
+    @media(min-width: 768px) {
+      .recipes-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    .recipe-card {
+      background-color: var(--white);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-md);
+      border: 1px solid rgba(46, 125, 50, 0.05);
+      display: flex;
+      flex-direction: column;
+      transition: var(--transition);
+      position: relative;
+    }
+
+    .recipe-card:hover {
+      transform: translateY(-8px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .recipe-badge {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background-color: var(--warm-orange);
+      color: var(--white);
+      padding: 6px 12px;
+      border-radius: 50px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      box-shadow: 0 2px 8px rgba(255, 152, 0, 0.3);
+    }
+
+    .recipe-body {
+      padding: 24px;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .recipe-body h3 {
+      font-size: 1.4rem;
+      color: var(--primary-green);
+      margin-bottom: 12px;
+      padding-right: 80px; /* Room for badge */
+      font-weight: 700;
+    }
+
+    .recipe-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+      font-weight: 500;
+    }
+
+    .recipe-section-title {
+      font-size: 1rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--dark-orange);
+      margin-top: 16px;
+      margin-bottom: 8px;
+    }
+
+    .recipe-ingredients {
+      list-style-type: none;
+      margin-bottom: 16px;
+    }
+
+    .recipe-ingredients li {
+      position: relative;
+      padding-left: 20px;
+      margin-bottom: 6px;
+      font-size: 0.95rem;
+    }
+
+    .recipe-ingredients li::before {
+      content: '✔';
+      position: absolute;
+      left: 0;
+      color: var(--accent-green);
+      font-weight: bold;
+    }
+
+    .recipe-instructions {
+      padding-left: 20px;
+      font-size: 0.95rem;
+      margin-bottom: 16px;
+    }
+
+    .recipe-instructions li {
+      margin-bottom: 8px;
+    }
+
+    .recipe-use-first {
+      background-color: var(--light-orange);
+      border: 1px solid rgba(255, 152, 0, 0.2);
+      padding: 12px;
+      border-radius: var(--radius-sm);
+      margin-top: auto;
+      font-size: 0.9rem;
+    }
+
+    .recipe-use-first strong {
+      color: var(--dark-orange);
+    }
+
+    footer {
+      text-align: center;
+      padding: 30px 24px;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      border-top: 1px solid rgba(46, 125, 50, 0.1);
+      margin-top: 80px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-container">
+      <a href="#" class="logo">
+        <i class="fa-solid fa-leaf"></i> Fridge-to-<span>Plate</span>
+      </a>
+      <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted); background: var(--light-green); padding: 4px 12px; border-radius: 50px;">
+        <i class="fa-solid fa-earth-americas"></i> Waste Less, Cook More
+      </span>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <h1>Fridge-to-Plate — Stop Food Waste, Start Cooking</h1>
+      <p>Upload a photo of your fridge or select what you have. Our AI chef will whip up 3 delicious recipes tailored to your leftovers.</p>
+    </section>
+
+    <div class="interactive-card">
+      <!-- Upload Zone -->
+      <div class="upload-zone" id="upload-zone">
+        <i class="fa-solid fa-cloud-arrow-up"></i>
+        <p>Drag & drop photo of your fridge/pantry here</p>
+        <span>or click to browse from your device (JPG, PNG)</span>
+        <input type="file" id="image-input" accept="image/*">
+      </div>
+
+      <!-- Image Preview -->
+      <div class="preview-container" id="preview-container">
+        <div class="preview-wrapper">
+          <img src="" alt="Fridge Preview" class="preview-image" id="preview-image">
+          <button class="remove-image-btn" id="remove-image-btn" title="Remove photo">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="divider" id="divider-or">OR</div>
+
+      <!-- Choose Common Items -->
+      <div style="text-align: center;">
+        <button class="btn-secondary" id="toggle-dropdown-btn">
+          <i class="fa-solid fa-basket-shopping"></i> Choose Common Ingredients
+        </button>
+      </div>
+
+      <div class="dropdown-container" id="dropdown-container">
+        <div class="ingredients-grid">
+          <label class="checkbox-label"><input type="checkbox" value="Eggs"> Eggs</label>
+          <label class="checkbox-label"><input type="checkbox" value="Milk"> Milk</label>
+          <label class="checkbox-label"><input type="checkbox" value="Cheese"> Cheese</label>
+          <label class="checkbox-label"><input type="checkbox" value="Tomatoes"> Tomatoes</label>
+          <label class="checkbox-label"><input type="checkbox" value="Onions"> Onions</label>
+          <label class="checkbox-label"><input type="checkbox" value="Bell Peppers"> Bell Peppers</label>
+          <label class="checkbox-label"><input type="checkbox" value="Chicken Breast"> Chicken Breast</label>
+          <label class="checkbox-label"><input type="checkbox" value="Spinach"> Spinach</label>
+          <label class="checkbox-label"><input type="checkbox" value="Garlic"> Garlic</label>
+          <label class="checkbox-label"><input type="checkbox" value="Potatoes"> Potatoes</label>
+          <label class="checkbox-label"><input type="checkbox" value="Carrots"> Carrots</label>
+          <label class="checkbox-label"><input type="checkbox" value="Rice"> Rice</label>
+          <label class="checkbox-label"><input type="checkbox" value="Canned Beans"> Canned Beans</label>
+          <label class="checkbox-label"><input type="checkbox" value="Lemon"> Lemon</label>
+        </div>
+      </div>
+
+      <!-- Generate Action -->
+      <div class="action-container">
+        <button class="btn-primary" id="generate-btn" disabled>
+          <i class="fa-solid fa-wand-magic-sparkles"></i> Generate Recipes
+        </button>
+      </div>
+    </div>
+
+    <!-- Error State -->
+    <div class="error-container" id="error-container"></div>
+
+    <!-- Loading State -->
+    <div class="loading-container" id="loading-container">
+      <div class="spinner"></div>
+      <div class="loading-text" id="loading-text">AI is analyzing your ingredients...</div>
+    </div>
+
+    <!-- Results Section -->
+    <div class="results-container" id="results-container">
+      <div class="results-header">
+        <h2>We identified these items:</h2>
+        <div class="ingredient-chips" id="ingredient-chips"></div>
+        <h2 style="margin-top: 30px; border-bottom: 2px solid var(--light-green); padding-bottom: 10px;">
+          <i class="fa-solid fa-hat-chef" style="color: var(--primary-green);"></i> 3 Recipes For You
+        </h2>
+      </div>
+
+      <div class="recipes-grid" id="recipes-output"></div>
+    </div>
+  </main>
+
+  <footer>
+    <p>Built with ❤️ using Groq API &copy; <span id="current-year"></span> Fridge-to-Plate. All rights reserved.</p>
+  </footer>
+
+  <script>
+    // State variables
+    let base64Image = null;
+    let selectedIngredients = [];
+
+    // DOM Elements
+    const uploadZone = document.getElementById('upload-zone');
+    const imageInput = document.getElementById('image-input');
+    const previewContainer = document.getElementById('preview-container');
+    const previewImage = document.getElementById('preview-image');
+    const removeImageBtn = document.getElementById('remove-image-btn');
+    const toggleDropdownBtn = document.getElementById('toggle-dropdown-btn');
+    const dropdownContainer = document.getElementById('dropdown-container');
+    const generateBtn = document.getElementById('generate-btn');
+    const loadingContainer = document.getElementById('loading-container');
+    const loadingText = document.getElementById('loading-text');
+    const errorContainer = document.getElementById('error-container');
+    const resultsContainer = document.getElementById('results-container');
+    const ingredientChips = document.getElementById('ingredient-chips');
+    const recipesOutput = document.getElementById('recipes-output');
+    const currentYearSpan = document.getElementById('current-year');
+
+    // Set Footer Year
+    currentYearSpan.textContent = new Date().getFullYear();
+
+    // Helper to compress and resize image
+    function compressImage(base64Src, maxWidth, maxHeight, quality) {
+      return new Promise((resolve) => {
+        const img = new Image();
+        img.src = base64Src;
+        img.onload = () => {
+          let width = img.width;
+          let height = img.height;
+          if (width > maxWidth || height > maxHeight) {
+            if (width > height) {
+              height = Math.round((height * maxWidth) / width);
+              width = maxWidth;
+            } else {
+              width = Math.round((width * maxHeight) / height);
+              height = maxHeight;
+            }
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+          resolve(canvas.toDataURL('image/jpeg', quality));
+        };
+      });
+    }
+
+    function normalizeImageDataUrl(imageData) {
+      if (!imageData) {
+        throw new Error("No image data was provided.");
+      }
+
+      if (imageData.startsWith('data:image/')) {
+        return imageData;
+      }
+
+      return `data:image/jpeg;base64,${imageData}`;
+    }
+
+    // Trigger Click on Upload Zone
+    uploadZone.addEventListener('click', () => imageInput.click());
+
+    // Drag & Drop Handlers
+    ['dragenter', 'dragover'].forEach(eventName => {
+      uploadZone.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        uploadZone.classList.add('dragover');
+      }, false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+      uploadZone.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        uploadZone.classList.remove('dragover');
+      }, false);
+    });
+
+    uploadZone.addEventListener('drop', (e) => {
+      const dt = e.dataTransfer;
+      const files = dt.files;
+      if (files.length) {
+        handleImageFile(files[0]);
+      }
+    });
+
+    imageInput.addEventListener('change', (e) => {
+      if (e.target.files.length) {
+        handleImageFile(e.target.files[0]);
+      }
+    });
+
+    function handleImageFile(file) {
+      if (!file.type.startsWith('image/')) {
+        showError("Please upload an image file.");
+        return;
+      }
+      
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onloadend = async () => {
+        const rawBase64 = reader.result;
+        // Compress and resize image to avoid 400 payload errors
+        base64Image = await compressImage(rawBase64, 800, 800, 0.7);
+        previewImage.src = base64Image;
+        previewContainer.style.display = 'flex';
+        uploadZone.style.display = 'none';
+        clearError();
+        updateGenerateButtonState();
+      };
+    }
+
+    removeImageBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      base64Image = null;
+      previewImage.src = '';
+      previewContainer.style.display = 'none';
+      uploadZone.style.display = 'block';
+      imageInput.value = '';
+      updateGenerateButtonState();
+    });
+
+    // Checkboxes and Toggle Dropdown
+    toggleDropdownBtn.addEventListener('click', () => {
+      dropdownContainer.classList.toggle('show');
+    });
+
+    const checkboxes = dropdownContainer.querySelectorAll('input[type="checkbox"]');
+    checkboxes.forEach(box => {
+      box.addEventListener('change', () => {
+        selectedIngredients = Array.from(checkboxes)
+          .filter(c => c.checked)
+          .map(c => c.value);
+        updateGenerateButtonState();
+      });
+    });
+
+    function updateGenerateButtonState() {
+      if (base64Image || selectedIngredients.length > 0) {
+        generateBtn.removeAttribute('disabled');
+      } else {
+        generateBtn.setAttribute('disabled', 'true');
+      }
+    }
+
+    // Recipe Generation
+    generateBtn.addEventListener('click', async () => {
+      clearError();
+      resultsContainer.style.display = 'none';
+      recipesOutput.innerHTML = '';
+      ingredientChips.innerHTML = '';
+      
+      if (!base64Image && selectedIngredients.length === 0) {
+        showError("Please upload a photo or select ingredients.");
+        return;
+      }
+
+      loadingContainer.style.display = 'flex';
+      loadingText.textContent = base64Image ? "AI is analyzing your ingredients..." : "Creating delicious recipes...";
+      generateBtn.setAttribute('disabled', 'true');
+
+      const isLocalFile = window.location.protocol === 'file:';
+      const isLocalHost = ['localhost', '127.0.0.1', '::1'].includes(window.location.hostname);
+      const isNetlifyDev = window.location.hostname === 'localhost' && window.location.port === '8888';
+      const GROQ_API_KEY = "Enter your groq api key here";
+      const visionModel = "meta-llama/llama-4-scout-17b-16e-instruct";
+      const textModel = "llama-3.3-70b-versatile";
+
+      if (isLocalFile || isLocalHost) {
+        // Direct client-side fallback for file:// and local testing servers.
+        try {
+          const apiKey = GROQ_API_KEY.trim();
+          if (!apiKey || apiKey === "PASTE_YOUR_GROQ_API_KEY_HERE") {
+            throw new Error("Paste your Groq API key into the GROQ_API_KEY placeholder in index.html.");
+          }
+
+          let ingredients = "";
+
+          if (base64Image) {
+            const imageUrl = normalizeImageDataUrl(base64Image);
+            const visionResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${apiKey}`
+              },
+              body: JSON.stringify({
+                model: visionModel,
+                messages: [
+                  {
+                    role: "user",
+                    content: [
+                      {
+                        type: "text",
+                        text: "List all visible food items in this fridge/pantry photo. Be very specific (e.g., 'half an onion', '3 eggs', 'wilted spinach', 'leftover chicken breast'). Return only a comma-separated list of ingredients, no extra text, no numbering."
+                      },
+                      {
+                        type: "image_url",
+                        image_url: {
+                          url: imageUrl
+                        }
+                      }
+                    ]
+                  }
+                ],
+                temperature: 0.2,
+                max_completion_tokens: 512
+              })
+            });
+
+            if (!visionResponse.ok) {
+              throw new Error(`Vision API error: status ${visionResponse.status}`);
+            }
+            const visionData = await visionResponse.json();
+            ingredients = visionData.choices[0].message.content.strip ? visionData.choices[0].message.content.strip() : visionData.choices[0].message.content.trim();
+          } else {
+            ingredients = selectedIngredients.join(', ');
+          }
+
+          if (!ingredients) {
+            throw new Error("Could not identify any ingredients.");
+          }
+
+          // Call Groq Text API directly for recipe generation
+          const recipePrompt = `You are a creative chef. The user has these ingredients: ${ingredients}.
+You may also assume basic pantry staples: salt, pepper, oil, butter, water, and common spices.
+
+Generate 3 recipes that use ONLY these ingredients (plus the staples).
+
+For each recipe, provide:
+- A catchy recipe name.
+- Estimated prep time.
+- A list of ALL ingredients needed (only from the user's list + staples).
+- Step-by-step cooking instructions.
+- A note on which ingredient is most perishable and should be used first.
+
+Format the response with clear separation between the 3 recipes. Use line breaks and numbering.`;
+
+          const textResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${apiKey}`
+            },
+            body: JSON.stringify({
+              model: textModel,
+              messages: [
+                {
+                  role: "user",
+                  content: recipePrompt
+                }
+              ],
+              temperature: 0.7,
+              max_completion_tokens: 2048
+            })
+          });
+
+          if (!textResponse.ok) {
+            throw new Error(`Recipe API error: status ${textResponse.status}`);
+          }
+          const textData = await textResponse.json();
+          const recipes = textData.choices[0].message.content.trim();
+
+          renderResults({ ingredients, recipes });
+
+        } catch (err) {
+          console.error(err);
+          showError(`Local Testing Error: ${err.message}`);
+        } finally {
+          loadingContainer.style.display = 'none';
+          updateGenerateButtonState();
+        }
+
+      } else {
+        try {
+          const apiKey = GROQ_API_KEY.trim();
+          if (!apiKey || apiKey === "PASTE_YOUR_GROQ_API_KEY_HERE") {
+            throw new Error("Paste your Groq API key into the GROQ_API_KEY placeholder in index.html.");
+          }
+
+          let ingredients = "";
+
+          if (base64Image) {
+            const imageUrl = normalizeImageDataUrl(base64Image);
+            const visionResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${apiKey}`
+              },
+              body: JSON.stringify({
+                model: visionModel,
+                messages: [
+                  {
+                    role: "user",
+                    content: [
+                      {
+                        type: "text",
+                        text: "List all visible food items in this fridge/pantry photo. Be very specific (e.g., 'half an onion', '3 eggs', 'wilted spinach', 'leftover chicken breast'). Return only a comma-separated list of ingredients, no extra text, no numbering."
+                      },
+                      {
+                        type: "image_url",
+                        image_url: {
+                          url: imageUrl
+                        }
+                      }
+                    ]
+                  }
+                ],
+                temperature: 0.2,
+                max_completion_tokens: 512
+              })
+            });
+
+            if (!visionResponse.ok) {
+              throw new Error(`Vision API error: status ${visionResponse.status}`);
+            }
+            const visionData = await visionResponse.json();
+            ingredients = visionData.choices[0].message.content.strip ? visionData.choices[0].message.content.strip() : visionData.choices[0].message.content.trim();
+          } else {
+            ingredients = selectedIngredients.join(', ');
+          }
+
+          if (!ingredients) {
+            throw new Error("Could not identify any ingredients.");
+          }
+
+          const recipePrompt = `You are a creative chef. The user has these ingredients: ${ingredients}.
+You may also assume basic pantry staples: salt, pepper, oil, butter, water, and common spices.
+
+Generate 3 recipes that use ONLY these ingredients (plus the staples).
+
+For each recipe, provide:
+- A catchy recipe name.
+- Estimated prep time.
+- A list of ALL ingredients needed (only from the user's list + staples).
+- Step-by-step cooking instructions.
+- A note on which ingredient is most perishable and should be used first.
+
+Format the response with clear separation between the 3 recipes. Use line breaks and numbering.`;
+
+          const textResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${apiKey}`
+            },
+            body: JSON.stringify({
+              model: textModel,
+              messages: [
+                {
+                  role: "user",
+                  content: recipePrompt
+                }
+              ],
+              temperature: 0.7,
+              max_completion_tokens: 2048
+            })
+          });
+
+          if (!textResponse.ok) {
+            throw new Error(`Recipe API error: status ${textResponse.status}`);
+          }
+          const textData = await textResponse.json();
+          const recipes = textData.choices[0].message.content.trim();
+
+          renderResults({ ingredients, recipes });
+        } catch (err) {
+          console.error(err);
+          showError(`Local Testing Error: ${err.message}`);
+        } finally {
+          loadingContainer.style.display = 'none';
+          updateGenerateButtonState();
+        }
+      }
+    });
+
+    function renderResults(data) {
+      // 1. Render identified ingredients
+      const items = data.ingredients.split(',').map(i => i.trim()).filter(i => i.length > 0);
+      items.forEach(item => {
+        const chip = document.createElement('span');
+        chip.className = 'chip';
+        chip.textContent = item;
+        ingredientChips.appendChild(chip);
+      });
+
+      // 2. Render Recipes
+      const rawRecipesText = data.recipes;
+      
+      // Let's parse the recipe text and structure into 3 cards if possible.
+      // Usually, recipes are returned cleanly. We can split them by double newlines,
+      // or we can run marked.js to render them. To keep it robust and responsive,
+      // we can try splitting the recipes or letting marked do the rendering into distinct containers.
+      
+      // Let's split by double line breaks and common patterns like "Recipe 1:", "Recipe 2:", "Recipe 3:"
+      // or "1.", "2.", "3.".
+      const recipeBlocks = splitRecipes(rawRecipesText);
+      
+      recipeBlocks.forEach((block, idx) => {
+        const card = document.createElement('div');
+        card.className = 'recipe-card';
+        
+        // Find if we have a perishable ingredient highlight
+        const useFirstMatch = block.match(/(?:Use First|Perishable|Perishable ingredient|Most perishable|perishable ingredient):?\s*([^\n\.]+)/i);
+        const useFirstInfo = useFirstMatch ? useFirstMatch[1].trim() : 'Perishables';
+
+        const badge = document.createElement('span');
+        badge.className = 'recipe-badge';
+        badge.textContent = 'Use First';
+        card.appendChild(badge);
+
+        const body = document.createElement('div');
+        body.className = 'recipe-body';
+
+        // Render the inner HTML using marked.js
+        const htmlContent = marked.parse(block);
+        body.innerHTML = htmlContent;
+
+        // Enhance layout of ingredients list and prep time inside the generated elements
+        const headings = body.querySelectorAll('h1, h2, h3, h4');
+        headings.forEach((h, hIdx) => {
+          if (hIdx === 0) {
+            h.outerHTML = `<h3>${h.textContent}</h3>`;
+          } else {
+            h.outerHTML = `<h4 class="recipe-section-title">${h.textContent}</h4>`;
+          }
+        });
+
+        // Add custom lists classes
+        const lists = body.querySelectorAll('ul');
+        lists.forEach(ul => {
+          ul.className = 'recipe-ingredients';
+        });
+
+        const ols = body.querySelectorAll('ol');
+        ols.forEach(ol => {
+          ol.className = 'recipe-instructions';
+        });
+
+        // Append 'Use First' note at bottom of body
+        if (useFirstInfo) {
+          const useFirstBox = document.createElement('div');
+          useFirstBox.className = 'recipe-use-first';
+          useFirstBox.innerHTML = `<i class="fa-solid fa-triangle-exclamation" style="color: var(--dark-orange);"></i> <strong>Use First:</strong> ${useFirstInfo}`;
+          body.appendChild(useFirstBox);
+        }
+
+        card.appendChild(body);
+        recipesOutput.appendChild(card);
+      });
+
+      resultsContainer.style.display = 'block';
+      resultsContainer.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function splitRecipes(text) {
+      // Split text by matching recipe headings or markers
+      // A common separator is "Recipe X" or bold names.
+      // Let's split using a regex that captures "Recipe 1", "Recipe 2", "Recipe 3" or similar
+      const parts = text.split(/(?=Recipe \d|Recipe #\d|## Recipe|\n\n\d\.\s)/i);
+      
+      // Clean and return at most 3 parts
+      const cleaned = parts.map(p => p.trim()).filter(p => p.length > 5);
+      if (cleaned.length >= 3) {
+        return cleaned.slice(0, 3);
+      }
+      
+      // Fallback split if formatting is different (e.g. by double linebreaks)
+      if (cleaned.length === 1) {
+        // Maybe split by double newlines or lines starting with titles
+        return [text];
+      }
+      return cleaned;
+    }
+
+    function showError(message) {
+      errorContainer.textContent = message;
+      errorContainer.style.display = 'block';
+    }
+
+    function clearError() {
+      errorContainer.textContent = '';
+      errorContainer.style.display = 'none';
+    }
+  </script>
+</body>
+</html>
